@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<title></title>
+		<script src="js/mui.min.js"></script>
+		<link href="css/mui.min.css" rel="stylesheet" />
+		<header class="mui-bar mui-bar-nav">
+			<a class="mui-action-back mui-icon mui-icon-left-nav mui-pull-left"></a>
+			<h1 class="mui-title">标题</h1>
+		</header>
+
+		<style type="text/css">
+			.mui-table-view-cell .mui-active {
+				background-color: #00ffff;
+			}
+			.mui-media-object{
+				width: 300px;
+			}
+		</style>
+		<script type="text/javascript" charset="utf-8">
+			mui.init();
+			mui.plusReady(function() {
+				var self = plus.webview.currentWebview();
+				var id = self.idx;
+				var title = self.title;
+				document.querySelector('.mui-title').innerText = title;
+//				alert("id为" + self.idx);
+				var url = "http://api.kuaikanmanhua.com/v1/topics/" + id + "?sort=0";
+				
+				mui.ajax(url, {
+					success: function(res) {
+						console.log(url);
+//						alert(res.data.comics.length);
+						var table = document.querySelector('.mui-table-view');
+						for (var i = 0; i < res.data.comics.length; i++) {
+							var li = document.createElement('li');
+							li.className = 'mui-table-view-cell mui-media';
+							li.setAttribute('id', res.data.comics[i].id);
+							li.setAttribute('title', res.data.comics[i].title);
+							var img = document.createElement('img');
+							img.className = 'mui-media-object mui-pull-left';
+							img.src = res.data.comics[i].cover_image_url;
+							var div = document.createElement('div');
+							div.className = 'mui-media-body';
+							div.innerHTML = res.data.comics[i].title + '<p class="mui-ellipsis">' + res.data.comics[i].updated_at + '</p>';
+							li.appendChild(img);
+							li.appendChild(div);
+							table.appendChild(li);
+						}
+					},
+					error: function(xhr, type, throwerr) {
+						alert(type);
+					}
+				});
+				mui('.mui-table-view').on('tap', '.mui-table-view-cell', function() {
+					var idx = this.getAttribute('id');
+					var title = this.getAttribute('title');
+					mui.openWindow({
+						url: 'imageviewer.html',
+						extras: {
+							idx: idx,
+							title:title
+						}
+					});
+				});
+			});
+		</script>
+	</head>
+
+	<body>
+		<div class="mui-content">
+			<ul class="mui-table-view">
+
+			</ul>
+		</div>
+
+	</body>
+
+</html>

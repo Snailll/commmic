@@ -1,0 +1,219 @@
+<html>
+
+	<head>
+		<title>首页</title>
+		<meta charset="UTF-8" />
+		<meta http-equiv="Pragma" content="no-cache" />
+		<link rel="stylesheet" type="text/css" href="css/mui.css" />
+		<script src="js/mui.js" type="text/javascript" charset="utf-8"></script>
+		<style type="text/css">
+			/*.title {
+				margin: 20px 15px 10px;
+				color: #6d6d72;
+				font-size: 15px;
+			}*/
+			
+			.mui-slider {
+				height: 280px;
+			}
+			
+			ul {
+				margin: 0;
+				padding: 1;
+				width: 100%;
+				white-space: nowrap;
+				overflow: auto;
+			}
+			
+			li {
+				/*float: left;*/
+				margin: 5px;
+				display: inline-block;
+				/* 向左漂移，将竖排变为横排 */
+			}
+			
+			p {
+				display: inline;
+			}
+		</style>
+	</head>
+	<header class="mui-bar mui-bar-nav">
+		<a class="mui-icon mui-pull-left"></a>
+		<h1 class="mui-title">首页</h1>
+	</header>
+
+	<nav class="mui-bar mui-bar-tab">
+		<a class="mui-tab-item mui-active">
+			<span class="mui-icon mui-icon-home"></span>
+			<span class="mui-tab-label">首页</span>
+		</a>
+		<a class="mui-tab-item">
+			<span class="mui-icon mui-icon-phone"></span>
+			<span class="mui-tab-label">电话</span>
+		</a>
+		<a class="mui-tab-item">
+			<span class="mui-icon mui-icon-email"></span>
+			<span class="mui-tab-label">邮件</span>
+		</a>
+		<a class="mui-tab-item">
+			<span class="mui-icon mui-icon-gear"></span>
+			<span class="mui-tab-label">设置</span>
+		</a>
+	</nav>
+
+	<body>
+
+		<div class="mui-content">
+			<!--图片轮播-->
+			<div class="mui-slider">
+				<div class="mui-slider-group mui-slider-loop">
+
+				</div>
+			</div>
+			<div id="tops">
+
+			</div>
+			<!--<div class="top-list">
+				<div class="top-list-header">
+					<p style="background-color: yellow;">&nbsp;</p>
+					<p style="display: inline; text-align: center;">每周排行榜</p>
+					<p style="float: right;">查看更多</p>
+				</div>
+				<div class="top-list-content">
+
+				</div>
+			</div>-->
+		</div>
+
+		<script type="text/javascript">
+			//http://api.kuaikanmanhua.com/v1/topics/500?sort=0
+			//http://api.kuaikanmanhua.com/v1/comics/8013?sort=0
+			//http://api.kuaikanmanhua.com/v1/tag/suggestion?
+			//http://api.kuaikanmanhua.com/v1/banners?
+			//http://api.kuaikanmanhua.com/v1/topic_lists/mixed?
+			mui.plusReady(function() {
+				mui.ajax("http://api.kuaikanmanhua.com/v1/banners?", {
+					success: function(res) {
+						console.log(res.data);
+						var table = document.querySelector(".mui-slider-group");
+						for (var i = 0; i < res.data.banner_group.length; i++) {
+							console.log(res.data.banner_group[i].pic);
+							var div = document.createElement('div');
+							div.className = 'mui-slider-item';
+							div.setAttribute('id', res.data.banner_group[i].value);
+							var a = document.createElement('a');
+							var img = document.createElement('img');
+							img.src = res.data.banner_group[i].pic;
+							a.appendChild(img);
+							div.appendChild(a);
+							table.appendChild(div);
+						}
+						var gallery = mui('.mui-slider');
+						gallery.slider({
+							interval: 2000 //自动轮播周期，若为0则不自动播放，默认为0；
+						});
+					},
+					error: function(xhr, type, errorThrown) {
+						console.log(type);
+						alert(type);
+					}
+				});
+				mui.ajax('http://api.kuaikanmanhua.com/v1/topic_lists/mixed?', {
+					success: function(res) {
+						var tops = document.querySelector('#tops');
+						for (var i = 0; i < res.data.topics.length; i++) {
+							var top = document.createElement('div');
+							var ul = document.createElement('ul');
+							ul.className = 'top-comic';
+							var head = createTopHeader(res.data.topics[i].title,res.data.topics[i].action);
+							console.log(head.innerHTML)
+							for (var j = 0; j < res.data.topics[i].topics.length; j++) {
+								var li = document.createElement('li');
+								li.className = 'top-comic-item';
+								li.setAttribute("id", res.data.topics[i].topics[j].id);
+								li.setAttribute("title", res.data.topics[i].topics[j].title);
+								var a = document.createElement('a');
+								var img = document.createElement('img');
+								img.width = 120;
+								img.height = 160;
+								img.src = res.data.topics[i].topics[j].vertical_image_url;
+								a.appendChild(img);
+								li.appendChild(a);
+								ul.appendChild(li);
+							}
+							if (res.data.topics[i].topics.length > 0) {
+								top.appendChild(head)
+								top.appendChild(ul);
+								tops.appendChild(top);
+							}
+						}
+						addItemTapListener();
+						addMoreTapListener();
+						//						console.log(tops.innerHTML);
+					},
+					error: function(xhr, type, throwerr) {
+						alert(type);
+					}
+				});
+			});
+
+			function addMoreTapListener() {
+				mui('.top-list-header').on('tap', '.top-list-header-more', function() {
+					var action = this.getAttribute('action');
+					var title = this.getAttribute('title');
+					console.log(action);
+					mui.openWindow({
+						url: 'list.html',
+						extras: {
+							action: action,
+							title:title
+						}
+					});
+				});
+			};
+
+			function addItemTapListener() {
+				mui('.top-comic').on('tap', '.top-comic-item', function() {
+					var idx = this.getAttribute('id');
+					var title = this.getAttribute('title');
+					console.log(title);
+					mui.openWindow({
+						id: 'detail',
+						url: 'detail.html',
+						extras: {
+							idx: idx,
+							title: title
+						}
+					});
+				});
+			};
+
+			function createTopHeader(title,action) {
+				console.log(title);
+				var head = document.createElement('div');
+				var right_icon = document.createElement('p');
+				var top_title = document.createElement('p');
+				var top_more = document.createElement('p');
+				head.className = 'top-list-header';
+				right_icon.innerHTML = '&nbsp;';
+				right_icon.style.marginRight = 10;
+				right_icon.style.backgroundColor = 'orange';
+				right_icon.style.borderRadius = 10;
+				top_title.innerHTML = title;
+				top_more.className = 'top-list-header-more';
+				top_more.innerHTML = '查看更多';
+				top_more.setAttribute('action',action);
+				top_more.setAttribute('title',title);
+				top_more.style.float = 'right';
+				head.appendChild(right_icon);
+				head.appendChild(top_title);
+				head.appendChild(top_more);
+				//				top_more.style.backgroundColor = 'orange';
+				//				top_title.style.backgroundColor = 'orange';
+				return head;
+				//				head.innerHTML = '<div class="top-list-header"><p style="background-color: orange; border-radius: 10px;">&nbsp;</p><p style="display: inline; text-align: center;">' + res.data.topics[i].title + '</p><p style="float: right;">查看更多</p></div>';
+			}
+		</script>
+	</body>
+
+</html>

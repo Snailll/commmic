@@ -1,0 +1,54 @@
+<html>
+
+	<head>
+		<title>首页</title>
+		<meta charset="UTF-8" />
+		<meta http-equiv="Pragma" content="no-cache" />
+		<link rel="stylesheet" type="text/css" href="css/mui.css" />
+		<script src="js/mui.js" type="text/javascript" charset="utf-8"></script>
+	</head>
+	<header class="mui-bar mui-bar-nav">
+		<a class="mui-action-back mui-icon mui-icon-left-nav mui-pull-left"></a>
+		<h1 class="mui-title">标题</h1>
+	</header>
+
+	<body>
+
+		<div class="mui-content" style="margin-bottom: 0px;">
+
+			<ul class="mui-table-view">
+
+			</ul>
+		</div>
+
+		<script type="text/javascript">
+			//http://api.kuaikanmanhua.com/v1/topics/500?sort=0
+			//http://api.kuaikanmanhua.com/v1/comics/8013?sort=0
+			//http://api.kuaikanmanhua.com/v1/tag/suggestion?
+			//http://api.kuaikanmanhua.com/v1/banner?
+			//http://api.kuaikanmanhua.com/v1/topic_lists/mixed?
+			mui.init({
+				subpages: [{
+					url: 'list_sub.html',
+					id: 'list_sub.html',
+					styles: {
+						top: '45px',
+						bottom: '0px',
+					}
+				}]
+			});
+			mui.plusReady(function(){
+				var self = plus.webview.currentWebview();
+				console.log('list---'+self.action+self.title);
+				document.querySelector('.mui-title').innerHTML = self.title;
+				if(!sub){
+					sub= plus.webview.getWebviewById('list_sub.html');
+				}
+				mui.fire(sub,'setaction',{action:self.action});
+				
+			});
+
+		</script>
+	</body>
+
+</html>
