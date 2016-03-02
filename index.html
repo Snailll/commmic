@@ -17,7 +17,7 @@
 				height: 280px;
 			}
 			
-			ul {
+			#home ul {
 				margin: 0;
 				padding: 1;
 				width: 100%;
@@ -25,14 +25,14 @@
 				overflow: auto;
 			}
 			
-			li {
+			#home li {
 				/*float: left;*/
 				margin: 5px;
 				display: inline-block;
 				/* 向左漂移，将竖排变为横排 */
 			}
 			
-			p {
+			#home p {
 				display: inline;
 			}
 		</style>
@@ -43,19 +43,19 @@
 	</header>
 
 	<nav class="mui-bar mui-bar-tab">
-		<a class="mui-tab-item mui-active">
+		<a class="mui-tab-item mui-active" href="#home">
 			<span class="mui-icon mui-icon-home"></span>
 			<span class="mui-tab-label">首页</span>
 		</a>
-		<a class="mui-tab-item">
-			<span class="mui-icon mui-icon-phone"></span>
-			<span class="mui-tab-label">电话</span>
+		<a class="mui-tab-item" href="#classify">
+			<span class="mui-icon mui-icon-flag"></span>
+			<span class="mui-tab-label">分类</span>
 		</a>
-		<a class="mui-tab-item">
-			<span class="mui-icon mui-icon-email"></span>
-			<span class="mui-tab-label">邮件</span>
+		<a class="mui-tab-item" href="#search">
+			<span class="mui-icon mui-icon-search"></span>
+			<span class="mui-tab-label">搜索</span>
 		</a>
-		<a class="mui-tab-item">
+		<a class="mui-tab-item" href="#setting">
 			<span class="mui-icon mui-icon-gear"></span>
 			<span class="mui-tab-label">设置</span>
 		</a>
@@ -63,7 +63,7 @@
 
 	<body>
 
-		<div class="mui-content">
+		<div class="mui-content mui-control-content mui-active" id="home">
 			<!--图片轮播-->
 			<div class="mui-slider">
 				<div class="mui-slider-group mui-slider-loop">
@@ -73,18 +73,26 @@
 			<div id="tops">
 
 			</div>
-			<!--<div class="top-list">
-				<div class="top-list-header">
-					<p style="background-color: yellow;">&nbsp;</p>
-					<p style="display: inline; text-align: center;">每周排行榜</p>
-					<p style="float: right;">查看更多</p>
-				</div>
-				<div class="top-list-content">
-
-				</div>
-			</div>-->
 		</div>
+		<div class="mui-content mui-control-content" id="classify">
+			<div class="mui-card">
+				<ul class="mui-table-view mui-grid-view mui-grid-9">
+				</ul>
+			</div>
+		</div>
+		<div class="mui-content mui-control-content" id="search">
+			<div class="mui-input-row mui-search">
+				<input type="search" class="mui-input-clear search-input" onchange='searchComic(this)' placeholder="搜索作品名、作者名" style="background-color: white;">
+			</div>
+			<div id="search">
+				<ul class="mui-table-view mui-table-view-chevron">
 
+				</ul>
+			</div>
+		</div>
+		<div class="mui-control-content" id="setting">
+
+		</div>
 		<script type="text/javascript">
 			//http://api.kuaikanmanhua.com/v1/topics/500?sort=0
 			//http://api.kuaikanmanhua.com/v1/comics/8013?sort=0
@@ -125,7 +133,7 @@
 							var top = document.createElement('div');
 							var ul = document.createElement('ul');
 							ul.className = 'top-comic';
-							var head = createTopHeader(res.data.topics[i].title,res.data.topics[i].action);
+							var head = createTopHeader(res.data.topics[i].title, res.data.topics[i].action);
 							console.log(head.innerHTML)
 							for (var j = 0; j < res.data.topics[i].topics.length; j++) {
 								var li = document.createElement('li');
@@ -156,6 +164,69 @@
 					}
 				});
 			});
+			//			<a href="#">
+			//							<span class="mui-icon mui-icon-phone"></span>
+			//							<div class="mui-media-body">Phone</div>
+			//						</a>
+			mui.ajax('http://api.kuaikanmanhua.com/v1/tag/suggestion?', {
+				success: function(res) {
+					var grid = document.querySelector('#classify ul');
+					for (var i = 0; i < res.data.suggestion.length; i++) {
+						var li = document.createElement('li');
+						li.className = 'mui-table-view-cell mui-media mui-col-xs-4 mui-col-sm-4';
+						var img = document.createElement('img');
+						img.className = ''
+						img.src = res.data.suggestion[i].icon;
+						img.style.width = '100%';
+						//						img.style.height = ;
+						img.style.borderRadius = '45%';
+						var p = document.createElement('p');
+						p.innerHTML = res.data.suggestion[i].title;
+						li.appendChild(img);
+						li.appendChild(p);
+						grid.appendChild(li);
+					}
+				},
+				error: function(xhr, type, throwerr) {
+					alert(type);
+				}
+			});
+			//			mui('#search').on('onblur','.search-input',function(){
+			//				alert(this.value));
+			//			});
+			function searchComic(keyWord) {
+				var table = document.querySelector("#search .mui-table-view");
+				table.innerHTML = '';
+				if (keyWord.value == '')
+					return;
+				var url = 'http://api.kuaikanmanhua.com/v1/topics/search?keyword=' + keyWord.value + '&limit=50&offset=0';
+				mui.ajax(url, {
+					success: function(res) {
+						console.log(res.data.topics.length);
+						var table = document.querySelector("#search .mui-table-view");
+						for (var i = 0; i < res.data.topics.length; i++) {
+							console.log(res.data.topics[i].title);
+							var li = document.createElement('li');
+							li.className = 'mui-table-view-cell';
+							li.setAttribute('id', res.data.topics[i].id);
+							li.setAttribute('title', res.data.topics[i].title);
+							var img = document.createElement('img');
+							img.className = 'mui-media-object mui-pull-left';
+							img.src = res.data.topics[i].cover_image_url;
+							var div = document.createElement('div');
+							div.className = 'mui-media-body';
+							div.innerHTML = res.data.topics[i].title + '<p class="mui-ellipsis">' + res.data.topics[i].description + '</p>';
+							li.appendChild(img);
+							li.appendChild(div);
+							table.appendChild(li);
+						}
+					},
+					error: function(xhr, type, errorThrown) {
+						console.log(type);
+						alert(type + errorThrown);
+					}
+				});
+			}
 
 			function addMoreTapListener() {
 				mui('.top-list-header').on('tap', '.top-list-header-more', function() {
@@ -166,7 +237,7 @@
 						url: 'list.html',
 						extras: {
 							action: action,
-							title:title
+							title: title
 						}
 					});
 				});
@@ -188,7 +259,7 @@
 				});
 			};
 
-			function createTopHeader(title,action) {
+			function createTopHeader(title, action) {
 				console.log(title);
 				var head = document.createElement('div');
 				var right_icon = document.createElement('p');
@@ -202,8 +273,8 @@
 				top_title.innerHTML = title;
 				top_more.className = 'top-list-header-more';
 				top_more.innerHTML = '查看更多';
-				top_more.setAttribute('action',action);
-				top_more.setAttribute('title',title);
+				top_more.setAttribute('action', action);
+				top_more.setAttribute('title', title);
 				top_more.style.float = 'right';
 				head.appendChild(right_icon);
 				head.appendChild(top_title);
