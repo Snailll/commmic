@@ -12,10 +12,11 @@
 				width: 30%;
 				margin-right: 10px;
 			}
-			li{
+			
+			li {
 				margin: 0 10px;
 				padding: 10px 0;
-				border-bottom:solid;
+				border-bottom: solid;
 				border-width: 1px;
 				border-color: #eee;
 			}
@@ -46,14 +47,15 @@
 			//http://api.kuaikanmanhua.com/v1/tag/suggestion?
 			//http://api.kuaikanmanhua.com/v1/banner?
 			//http://api.kuaikanmanhua.com/v1/topic_lists/mixed?
-//			var action = '';
+			//			var action = '';
 			mui.init({
 				pullRefresh: {
 					container: '#pullrefresh',
 					up: {
 						callback: pullupRefresh
 					}
-				}
+				},
+				swipeBack: true
 			});
 			window.addEventListener('setaction', function(event) {
 				//获得事件参数
@@ -84,8 +86,6 @@
 			function pullupRefresh() {
 				setTimeout(function() {
 					var action = plus.webview.currentWebview().parent().action;
-					//					var action = 'topic_lists/2';
-					console.log(action);
 					var url = "http://api.kuaikanmanhua.com/v1/" + action + "?limit=20&offset=" + (currentPage++ * 20);
 					console.log(url);
 					mui.ajax(url, {
@@ -106,7 +106,6 @@
 								var div = document.createElement('div');
 								div.className = 'mui-media-body';
 								div.innerHTML = res.data.topics[i].title + '<p class="mui-ellipsis">' + res.data.topics[i].description + '</p>';
-								
 								li.appendChild(img);
 								li.appendChild(div);
 								table.appendChild(li);

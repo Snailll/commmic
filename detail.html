@@ -21,7 +21,9 @@
 			}
 		</style>
 		<script type="text/javascript" charset="utf-8">
-			mui.init();
+			mui.init({
+				swipeBack:true
+			});
 			mui.plusReady(function() {
 				var self = plus.webview.currentWebview();
 				var id = self.idx;
@@ -29,7 +31,7 @@
 				document.querySelector('.mui-title').innerText = title;
 //				alert("id为" + self.idx);
 				var url = "http://api.kuaikanmanhua.com/v1/topics/" + id + "?sort=0";
-				
+				console.log(url);
 				mui.ajax(url, {
 					success: function(res) {
 						console.log(url);
@@ -38,6 +40,7 @@
 						var cover = document.querySelector('.cover-img');
 						cover.src = res.data.cover_image_url;
 						cover.style.width='100%';
+						document.querySelector('.mui-title').innerText=res.data.title;
 						for (var i = 0; i < res.data.comics.length; i++) {
 							var li = document.createElement('li');
 							li.className = 'mui-table-view-cell mui-media';

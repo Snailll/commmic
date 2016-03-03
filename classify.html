@@ -17,6 +17,7 @@
 							var li = document.createElement('li');
 							li.className = 'mui-table-view-cell mui-media mui-col-xs-4 mui-col-sm-4';
 							var img = document.createElement('img');
+							li.setAttribute('tag',res.data.suggestion[i].title);
 							img.className = ''
 							img.src = res.data.suggestion[i].icon;
 							console.log(res.data.suggestion[i].icon);
@@ -29,12 +30,30 @@
 							li.appendChild(p);
 							grid.appendChild(li);
 						}
+						setTagTaplistener();
 					},
 					error: function(xhr, type, throwerr) {
 						alert(type);
 					}
 				});
 			});
+			
+			function setTagTaplistener(){
+				mui('.mui-grid-view').on('tap', '.mui-table-view-cell', function() {
+					var idx = this.getAttribute('id');
+					var tag = this.getAttribute('tag');
+					console.log(tag);
+					mui.openWindow({
+						id: 'list',
+						url: 'list.html',
+						extras: {
+							idx: idx,
+							title:tag,
+							action:'topics?tag='+tag+'&'
+						}
+					});
+				});
+			}
 		</script>
 	</head>
 

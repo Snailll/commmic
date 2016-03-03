@@ -36,11 +36,27 @@
 							li.appendChild(div);
 							table.appendChild(li);
 						}
+						setItemTaplistener();
 					},
 					error: function(xhr, type, errorThrown) {
 						console.log(type);
 						alert(type + errorThrown);
 					}
+				});
+			}
+
+			function setItemTaplistener() {
+				mui('.mui-table-view').on('tap', '.mui-table-view-cell', function() {
+					var idx = this.getAttribute('id');
+					var title = this.getAttribute('tag');
+					mui.openWindow({
+						id: 'detail',
+						url: 'detail.html',
+						extras: {
+							idx: idx,
+							title: title,
+						}
+					});
 				});
 			}
 		</script>

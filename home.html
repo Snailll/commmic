@@ -50,6 +50,7 @@
 			mui.init();
 			mui.plusReady(function() {
 				var imgLazyloadApi = mui(document).imageLazyload({
+					autoDestroy: false,
 					placeholder: 'images/60x60.gif'
 				});
 				mui.ajax("http://api.kuaikanmanhua.com/v1/banners?", {
@@ -61,15 +62,19 @@
 							var div = document.createElement('div');
 							div.className = 'mui-slider-item';
 							div.setAttribute('id', res.data.banner_group[i].value);
+							div.setAttribute('title', res.data.banner_group[i].title);
+							div.setAttribute('type', res.data.banner_group[i].type);
 							var a = document.createElement('a');
 							var img = document.createElement('img');
-							img.src = res.data.banner_group[i].pic;
+							//							img.src = res.data.banner_group[i].pic;
 							img.setAttribute('data-lazyload', res.data.banner_group[i].pic);
 							a.appendChild(img);
 							div.appendChild(a);
 							table.appendChild(div);
 						}
-//						imgLazyloadApi.addElements();
+						//						imgLazyloadApi.addElements();
+						addBannerItemTapListener();
+						imgLazyloadApi.refresh(true);
 						var gallery = mui('.mui-slider');
 						gallery.slider({
 							interval: 2000 //自动轮播周期，若为0则不自动播放，默认为0；
@@ -111,7 +116,8 @@
 						}
 						addItemTapListener();
 						addMoreTapListener();
-						imgLazyloadApi.addElements();
+						//						imgLazyloadApi.addElements();
+						imgLazyloadApi.refresh(true);
 						//						console.log(tops.innerHTML);
 					},
 					error: function(xhr, type, throwerr) {
@@ -173,6 +179,33 @@
 				head.appendChild(top_more);
 				console.log(head.innerHTML);
 				return head;
+			}
+
+			function addBannerItemTapListener() {
+				mui('.mui-slider-group').on('tap', '.mui-slider-item', function() {
+					var idx = this.getAttribute('id');
+					var title = this.getAttribute('title');
+					var type = this.getAttribute('type');
+					console.log(title);
+					if (type == '2') {
+						mui.openWindow({
+							id: 'detail',
+							url: 'detail.html',
+							extras: {
+								idx: idx,
+								title: title
+							}
+						});
+					} else {
+						mui.openWindow({
+							url: 'imageviewer.html',
+							extras: {
+								idx: idx,
+								title: title
+							}
+						});
+					}
+				});
 			}
 		</script>
 	</head>
