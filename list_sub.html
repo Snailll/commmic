@@ -7,9 +7,17 @@
 		<link rel="stylesheet" type="text/css" href="css/mui.css" />
 		<script src="js/mui.js" type="text/javascript" charset="utf-8"></script>
 		<style type="text/css">
-			.mui-media-object{
-				max-width: 30%;
+			#pullrefresh .mui-media-icon {
+				max-width: 120px;
 				width: 30%;
+				margin-right: 10px;
+			}
+			li{
+				margin: 0 10px;
+				padding: 10px 0;
+				border-bottom:solid;
+				border-width: 1px;
+				border-color: #eee;
 			}
 		</style>
 	</head>
@@ -89,15 +97,16 @@
 							for (var i = 0; i < res.data.topics.length; i++) {
 								console.log(res.data.topics[i].title);
 								var li = document.createElement('li');
-								li.className = 'mui-table-view-cell';
+								li.className = 'mui-media';
 								li.setAttribute('id', res.data.topics[i].id);
 								li.setAttribute('title', res.data.topics[i].title);
 								var img = document.createElement('img');
-								img.className = 'mui-media-object mui-pull-left';
+								img.className = 'mui-media-icon mui-pull-left';
 								img.src = res.data.topics[i].cover_image_url;
 								var div = document.createElement('div');
 								div.className = 'mui-media-body';
 								div.innerHTML = res.data.topics[i].title + '<p class="mui-ellipsis">' + res.data.topics[i].description + '</p>';
+								
 								li.appendChild(img);
 								li.appendChild(div);
 								table.appendChild(li);
@@ -113,7 +122,7 @@
 			}
 			mui.plusReady(function() {
 				mui('#pullrefresh').pullRefresh().pullupLoading();
-				mui('.mui-table-view').on('tap', '.mui-table-view-cell', function() {
+				mui('.mui-table-view').on('tap', 'li', function() {
 					var idx = this.getAttribute('id');
 					var title = this.getAttribute('title');
 					mui.openWindow({

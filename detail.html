@@ -35,6 +35,9 @@
 						console.log(url);
 //						alert(res.data.comics.length);
 						var table = document.querySelector('.mui-table-view');
+						var cover = document.querySelector('.cover-img');
+						cover.src = res.data.cover_image_url;
+						cover.style.width='100%';
 						for (var i = 0; i < res.data.comics.length; i++) {
 							var li = document.createElement('li');
 							li.className = 'mui-table-view-cell mui-media';
@@ -72,6 +75,7 @@
 
 	<body>
 		<div class="mui-content">
+			<img class="cover-img"/>
 			<ul class="mui-table-view">
 
 			</ul>

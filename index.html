@@ -6,13 +6,17 @@
 		<meta http-equiv="Pragma" content="no-cache" />
 		<link rel="stylesheet" type="text/css" href="css/mui.css" />
 		<script src="js/mui.js" type="text/javascript" charset="utf-8"></script>
+		<script src="js/mui.lazyload.js"></script>
+		<script src="js/mui.lazyload.img.js"></script>
 		<style type="text/css">
 			/*.title {
 				margin: 20px 15px 10px;
 				color: #6d6d72;
 				font-size: 15px;
 			}*/
-			
+			body{
+				background-color: white;
+			}
 			.mui-slider {
 				height: 280px;
 			}
@@ -23,6 +27,9 @@
 				width: 100%;
 				white-space: nowrap;
 				overflow: auto;
+				border-bottom: solid;
+				border-width: 1px;
+				border-color: #ccc;
 			}
 			
 			#home li {
@@ -35,6 +42,15 @@
 			#home p {
 				display: inline;
 			}
+			.top-list-header{
+				padding: 5px;
+				margin: 0;
+			}
+			.top-list-header div {
+				display: inline;
+				color: #888;
+			}
+			
 		</style>
 	</head>
 	<header class="mui-bar mui-bar-nav">
@@ -145,6 +161,7 @@
 								img.width = 120;
 								img.height = 160;
 								img.src = res.data.topics[i].topics[j].vertical_image_url;
+								//								img.setAttribute('data-lazyload',res.data.topics[i].topics[j].vertical_image_url);
 								a.appendChild(img);
 								li.appendChild(a);
 								ul.appendChild(li);
@@ -163,34 +180,34 @@
 						alert(type);
 					}
 				});
+				mui.ajax('http://api.kuaikanmanhua.com/v1/tag/suggestion?', {
+					success: function(res) {
+						var grid = document.querySelector('#classify ul');
+						for (var i = 0; i < res.data.suggestion.length; i++) {
+							var li = document.createElement('li');
+							li.className = 'mui-table-view-cell mui-media mui-col-xs-4 mui-col-sm-4';
+							var img = document.createElement('img');
+							img.className = ''
+							img.src = res.data.suggestion[i].icon;
+							img.style.width = '100%';
+							//						img.style.height = ;
+							img.style.borderRadius = '45%';
+							var p = document.createElement('p');
+							p.innerHTML = res.data.suggestion[i].title;
+							li.appendChild(img);
+							li.appendChild(p);
+							grid.appendChild(li);
+						}
+					},
+					error: function(xhr, type, throwerr) {
+						alert(type);
+					}
+				});
 			});
 			//			<a href="#">
 			//							<span class="mui-icon mui-icon-phone"></span>
 			//							<div class="mui-media-body">Phone</div>
 			//						</a>
-			mui.ajax('http://api.kuaikanmanhua.com/v1/tag/suggestion?', {
-				success: function(res) {
-					var grid = document.querySelector('#classify ul');
-					for (var i = 0; i < res.data.suggestion.length; i++) {
-						var li = document.createElement('li');
-						li.className = 'mui-table-view-cell mui-media mui-col-xs-4 mui-col-sm-4';
-						var img = document.createElement('img');
-						img.className = ''
-						img.src = res.data.suggestion[i].icon;
-						img.style.width = '100%';
-						//						img.style.height = ;
-						img.style.borderRadius = '45%';
-						var p = document.createElement('p');
-						p.innerHTML = res.data.suggestion[i].title;
-						li.appendChild(img);
-						li.appendChild(p);
-						grid.appendChild(li);
-					}
-				},
-				error: function(xhr, type, throwerr) {
-					alert(type);
-				}
-			});
 			//			mui('#search').on('onblur','.search-input',function(){
 			//				alert(this.value));
 			//			});
@@ -263,8 +280,8 @@
 				console.log(title);
 				var head = document.createElement('div');
 				var right_icon = document.createElement('p');
-				var top_title = document.createElement('p');
-				var top_more = document.createElement('p');
+				var top_title = document.createElement('div');
+				var top_more = document.createElement('div');
 				head.className = 'top-list-header';
 				right_icon.innerHTML = '&nbsp;';
 				right_icon.style.marginRight = 10;
