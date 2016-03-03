@@ -1,4 +1,5 @@
-`<html>
+`
+<html>
 
 	<head>
 		<title>首页</title>
@@ -37,17 +38,18 @@
 					}
 				}]
 			});
-			mui.plusReady(function(){
+			var sub = null;
+			mui.plusReady(function() {
 				var self = plus.webview.currentWebview();
-				console.log('list---'+self.action+self.title);
+				console.log('list---' + self.action + self.title);
 				document.querySelector('.mui-title').innerHTML = self.title;
-				if(!sub){
-					sub= plus.webview.getWebviewById('list_sub.html');
+				if (!sub) {
+					sub = plus.webview.getWebviewById('list_sub.html');
 				}
-				mui.fire(sub,'setaction',{action:self.action});
-				
+				mui.fire(sub, 'setaction', {
+					action: self.action
+				});
 			});
-
 		</script>
 	</body>
 

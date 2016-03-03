@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<title></title>
+		<script src="js/mui.min.js"></script>
+		<link href="css/mui.min.css" rel="stylesheet" />
+		<script type="text/javascript" charset="UTF-8">
+			mui.init();
+
+			function searchComic(keyWord) {
+				var table = document.querySelector("#search .mui-table-view");
+				table.innerHTML = '';
+				if (keyWord.value == '')
+					return;
+				var url = 'http://api.kuaikanmanhua.com/v1/topics/search?keyword=' + keyWord.value + '&limit=50&offset=0';
+				mui.ajax(url, {
+					success: function(res) {
+						console.log(res.data.topics.length);
+						var table = document.querySelector("#search .mui-table-view");
+						for (var i = 0; i < res.data.topics.length; i++) {
+							console.log(res.data.topics[i].title);
+							var li = document.createElement('li');
+							li.className = 'mui-table-view-cell';
+							li.setAttribute('id', res.data.topics[i].id);
+							li.setAttribute('title', res.data.topics[i].title);
+							var img = document.createElement('img');
+							img.className = 'mui-media-object mui-pull-left';
+							img.src = res.data.topics[i].cover_image_url;
+							var div = document.createElement('div');
+							div.className = 'mui-media-body';
+							div.innerHTML = res.data.topics[i].title + '<p class="mui-ellipsis">' + res.data.topics[i].description + '</p>';
+							li.appendChild(img);
+							li.appendChild(div);
+							table.appendChild(li);
+						}
+					},
+					error: function(xhr, type, errorThrown) {
+						console.log(type);
+						alert(type + errorThrown);
+					}
+				});
+			}
+		</script>
+	</head>
+
+	<body>
+		<div class="mui-content" id="search">
+			<div class="mui-input-row mui-search">
+				<input type="search" class="mui-input-clear search-input" onchange='searchComic(this)' placeholder="搜索作品名、作者名" style="background-color: white;">
+			</div>
+			<div id="search">
+				<ul class="mui-table-view mui-table-view-chevron">
+
+				</ul>
+			</div>
+		</div>
+	</body>
+
+</html>

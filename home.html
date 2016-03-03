@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<title></title>
+		<script src="js/mui.min.js"></script>
+		<link href="css/mui.min.css" rel="stylesheet" />
+		<script src="js/mui.lazyload.js"></script>
+		<script src="js/mui.lazyload.img.js"></script>
+		<style type="text/css">
+			.mui-slider {
+				height: 280px;
+			}
+			
+			#home ul {
+				margin: 0;
+				padding: 0;
+				width: 100%;
+				white-space: nowrap;
+				overflow: auto;
+				border-bottom: solid;
+				border-width: 1px;
+				border-color: #ccc;
+			}
+			
+			#home li {
+				/*float: left;*/
+				margin: 5px;
+				display: inline-block;
+				/* 向左漂移，将竖排变为横排 */
+			}
+			
+			#home p {
+				display: inline;
+			}
+			
+			.top-list-header {
+				padding: 5px;
+				margin: 0;
+			}
+			
+			.top-list-header div {
+				display: inline;
+				color: #888;
+			}
+		</style>
+		<script type="text/javascript" charset="UTF-8">
+			mui.init();
+			mui.plusReady(function() {
+				var imgLazyloadApi = mui(document).imageLazyload({
+					placeholder: 'images/60x60.gif'
+				});
+				mui.ajax("http://api.kuaikanmanhua.com/v1/banners?", {
+					success: function(res) {
+						console.log(res.data);
+						var table = document.querySelector(".mui-slider-group");
+						for (var i = 0; i < res.data.banner_group.length; i++) {
+							console.log(res.data.banner_group[i].pic);
+							var div = document.createElement('div');
+							div.className = 'mui-slider-item';
+							div.setAttribute('id', res.data.banner_group[i].value);
+							var a = document.createElement('a');
+							var img = document.createElement('img');
+							img.src = res.data.banner_group[i].pic;
+							img.setAttribute('data-lazyload', res.data.banner_group[i].pic);
+							a.appendChild(img);
+							div.appendChild(a);
+							table.appendChild(div);
+						}
+//						imgLazyloadApi.addElements();
+						var gallery = mui('.mui-slider');
+						gallery.slider({
+							interval: 2000 //自动轮播周期，若为0则不自动播放，默认为0；
+						});
+					},
+					error: function(xhr, type, errorThrown) {
+						console.log(type);
+						alert(type);
+					}
+				});
+				mui.ajax('http://api.kuaikanmanhua.com/v1/topic_lists/mixed?', {
+					success: function(res) {
+						var tops = document.querySelector('#tops');
+						for (var i = 0; i < res.data.topics.length; i++) {
+							var top = document.createElement('div');
+							var ul = document.createElement('ul');
+							ul.className = 'top-comic';
+							var head = createTopHeader(res.data.topics[i].title, res.data.topics[i].action);
+							for (var j = 0; j < res.data.topics[i].topics.length; j++) {
+								var li = document.createElement('li');
+								li.className = 'top-comic-item';
+								li.setAttribute("id", res.data.topics[i].topics[j].id);
+								li.setAttribute("title", res.data.topics[i].topics[j].title);
+								var a = document.createElement('a');
+								var img = document.createElement('img');
+								img.width = 120;
+								img.height = 160;
+								//img.src = res.data.topics[i].topics[j].vertical_image_url;
+								img.setAttribute('data-lazyload', res.data.topics[i].topics[j].vertical_image_url);
+								a.appendChild(img);
+								li.appendChild(a);
+								ul.appendChild(li);
+							}
+							if (res.data.topics[i].topics.length > 0) {
+								top.appendChild(head)
+								top.appendChild(ul);
+								tops.appendChild(top);
+							}
+						}
+						addItemTapListener();
+						addMoreTapListener();
+						imgLazyloadApi.addElements();
+						//						console.log(tops.innerHTML);
+					},
+					error: function(xhr, type, throwerr) {
+						alert(type);
+					}
+				});
+			});
+
+			function addMoreTapListener() {
+				mui('.top-list-header').on('tap', '.top-list-header-more', function() {
+					var action = this.getAttribute('action');
+					var title = this.getAttribute('title');
+					console.log(action);
+					mui.openWindow({
+						url: 'list.html',
+						extras: {
+							action: action,
+							title: title
+						}
+					});
+				});
+			};
+
+			function addItemTapListener() {
+				mui('.top-comic').on('tap', '.top-comic-item', function() {
+					var idx = this.getAttribute('id');
+					var title = this.getAttribute('title');
+					console.log(title);
+					mui.openWindow({
+						id: 'detail',
+						url: 'detail.html',
+						extras: {
+							idx: idx,
+							title: title
+						}
+					});
+				});
+			};
+
+			function createTopHeader(title, action) {
+				console.log(title);
+				var head = document.createElement('div');
+				var right_icon = document.createElement('p');
+				var top_title = document.createElement('div');
+				var top_more = document.createElement('div');
+				head.className = 'top-list-header';
+				right_icon.innerHTML = '&nbsp;';
+				right_icon.style.marginRight = '10px';
+				right_icon.style.backgroundColor = 'orange';
+				right_icon.style.borderRadius = '10px';
+				top_title.innerHTML = title;
+				top_more.className = 'top-list-header-more';
+				top_more.innerHTML = '查看更多';
+				top_more.setAttribute('action', action);
+				top_more.setAttribute('title', title);
+				top_more.style.float = 'right';
+				head.appendChild(right_icon);
+				head.appendChild(top_title);
+				head.appendChild(top_more);
+				console.log(head.innerHTML);
+				return head;
+			}
+		</script>
+	</head>
+
+	<body>
+		<div class="mui-content" id='home'>
+			<div class="mui-slider">
+				<div class="mui-slider-group mui-slider-loop">
+
+				</div>
+			</div>
+			<div id="tops">
+
+			</div>
+		</div>
+	</body>
+
+</html>
