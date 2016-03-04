@@ -10,10 +10,10 @@
 		<script type="text/javascript" charset="UTF-8">
 			mui.init();
 			mui.plusReady(function() {
-//				mui.preload({
-//					url: "list.html",
-//					id: "list.html"
-//				});
+				mui.preload({
+					url: "list.html",
+					id: "list.html"
+				});
 				mui.ajax('http://api.kuaikanmanhua.com/v1/tag/suggestion?', {
 					success: function(res) {
 						var grid = document.body.querySelector('.mui-grid-view');
@@ -47,15 +47,42 @@
 					var idx = this.getAttribute('id');
 					var tag = this.getAttribute('tag');
 					console.log(tag);
-					mui.openWindow({
-						id: 'list',
-						url: 'list.html',
-						extras: {
-							idx: idx,
-							title: tag,
-							action: 'topics?tag=' + tag + '&'
-						}
+					//					mui.openWindow({
+					//						id: 'list',
+					//						url: 'list.html',
+					//						extras: {
+					//							idx: idx,
+					//							title: tag,
+					//							action: 'topics?tag=' + tag + '&'
+					//						}
+					//					});
+					var nwaiting = plus.nativeUI.showWaiting(); //显示原生等待框
+					//					var webviewShow = plus.webview.create({
+					//						url: "list.html",
+					//						id:"list",
+					//						extras: {
+					//							idx: idx,
+					//							title: tag,
+					//							action: 'topics?tag=' + tag + '&'
+					//						}
+					//});
+					var starttime = new Date().getTime();
+					console.log('创建webview开始时间是' + starttime);
+					//					listWebView.loadURL('list.html');
+					//					var webviewShow = plus.webview.create('list.html', 'list', {}, {
+					//						idx: idx,
+					//						title: tag,
+					//						action: 'topics?tag=' + tag + '&',
+					//						starttime: starttime
+					//					});
+					var list = plus.webview.getWebviewById('list.html');
+					//触发详情页面的newsId事件
+					mui.fire(list, 'init', {
+						idx: idx,
+						title: tag,
+						action: 'topics?tag=' + tag + '&',
 					});
+					console.log('创建webview耗时' + (new Date().getTime() - starttime));
 				});
 			}
 		</script>

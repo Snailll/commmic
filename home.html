@@ -3,8 +3,9 @@
 
 	<head>
 		<meta charset="UTF-8">
-		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
-		<title></title>
+		<meta name="viewport" content="width=device-width, initial-scale=1,maximum-scale=1,user-scalable=no">
+		<meta name="apple-mobile-web-app-capable" content="yes">
+		<meta name="apple-mobile-web-app-status-bar-style" content="black"><title></title>
 		<script src="js/mui.min.js"></script>
 		<link href="css/mui.min.css" rel="stylesheet" />
 		<script src="js/mui.lazyload.js"></script>
@@ -52,6 +53,10 @@
 				var imgLazyloadApi = mui(document).imageLazyload({
 					autoDestroy: false,
 					placeholder: 'images/60x60.gif'
+				});
+				mui.preload({
+					url: "list.html",
+					id: "list.html"
 				});
 				mui.ajax("http://api.kuaikanmanhua.com/v1/banners?", {
 					success: function(res) {
@@ -131,12 +136,12 @@
 					var action = this.getAttribute('action');
 					var title = this.getAttribute('title');
 					console.log(action);
-					mui.openWindow({
-						url: 'list.html',
-						extras: {
-							action: action,
-							title: title
-						}
+					var nwaiting = plus.nativeUI.showWaiting(); //显示原生等待框
+					var list = plus.webview.getWebviewById('list.html');
+					//触发详情页面的newsId事件
+					mui.fire(list, 'init', {
+						title: title,
+						action: action,
 					});
 				});
 			};

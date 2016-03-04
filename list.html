@@ -39,13 +39,21 @@
 				}],
 				swipeBack: true
 			});
-			mui.plusReady(function() {
-				var self = plus.webview.currentWebview();
-				console.log('list---' + self.action + self.title);
-				document.querySelector('.mui-title').innerHTML = self.title;
-			});
-			
-			
+			window.addEventListener('init', function init(event) {
+				mui.plusReady(function() {
+					//					var self = plus.webview.currentWebview();
+					//					console.log('list---' + self.action + self.title);
+					document.querySelector('.mui-title').innerHTML = event.detail.title;
+				});
+				var list_sub = plus.webview.getWebviewById('list_sub.html');
+				//触发详情页面的newsId事件
+				mui.fire(list_sub, 'init', {
+					idx: event.detail.idx,
+					title: event.detail.tag,
+					action: event.detail.action
+				});
+//				plus.webview.currentWebview().append(list_sub);
+			})
 		</script>
 	</body>
 

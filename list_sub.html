@@ -6,9 +6,13 @@
 		<meta http-equiv="Pragma" content="no-cache" />
 		<link rel="stylesheet" type="text/css" href="css/mui.css" />
 		<script src="js/mui.js" type="text/javascript" charset="utf-8"></script>
-		<script src="js/mui.lazyload.js"></script>
-		<script src="js/mui.lazyload.img.js"></script>
+		<!--<script src="js/mui.lazyload.js"></script>-->
+		<!--<script src="js/mui.lazyload.img.js"></script>-->
 		<style type="text/css">
+			body {
+				background: black;
+			}
+			
 			#pullrefresh .mui-media-icon {
 				max-width: 120px;
 				width: 30%;
@@ -49,7 +53,8 @@
 			//http://api.kuaikanmanhua.com/v1/tag/suggestion?
 			//http://api.kuaikanmanhua.com/v1/banner?
 			//http://api.kuaikanmanhua.com/v1/topic_lists/mixed?
-			//			var action = '';
+			var action = '';
+			var currentPage = 0;
 			mui.init({
 				pullRefresh: {
 					container: '#pullrefresh',
@@ -59,30 +64,51 @@
 				},
 				swipeBack: true
 			});
-			//			window.addEventListener('setaction', function(event) {
-			//				//获得事件参数
-			//				action = event.detail.action;
-			//				//				alert(action);
-			//				//根据id向服务器请求新闻详情
-			//			});
-			var currentPage = 0;
+			window.addEventListener('init', function init(event) {
+				mui.plusReady(function() {
+					action = event.detail.action;
+					//					alert('list_sub.html');
+					//				var s = new Date().getTime();
+					//				console.log('到开始请求耗时:' + ( plus.webview.currentWebview().parent().starttime-s));
+//					plus.nativeUI.closeWaiting();
+					//					plus.webview.currentWebview().parent().show("pop-in", 300);
+					//					imgLazyloadApi = mui(document).imageLazyload({
+					//						autoDestroy: false,
+					//						placeholder: 'images/60x60.gif'
+					//					});
+					var table = document.querySelector(".mui-table-view");
+					table.innerHTML = "";
+					currentPage = 0;
+					mui('#pullrefresh').pullRefresh().refresh(true);
+					mui('#pullrefresh').pullRefresh().pullupLoading();
+					mui('.mui-table-view').on('tap', 'li', function() {
+						var idx = this.getAttribute('id');
+						var title = this.getAttribute('title');
+						mui.openWindow({
+							id: 'detail',
+							url: 'detail.html',
+							extras: {
+								idx: idx,
+								title: title
+							}
+						});
+					});
+				});
+			});
 
 			function pullupRefresh() {
-				var action = plus.webview.currentWebview().parent().action;
+				//				var action = plus.webview.currentWebview().parent().action;
 				var url = "http://api.kuaikanmanhua.com/v1/" + action + "?limit=20&offset=" + (currentPage++ * 20);
 				console.log(url);
 				var starttime = new Date().getTime();
-				console.log('开始时间是' + starttime);
+				//				console.log('到开始请求耗时:' + (plus.webview.currentWebview().parent().starttime - starttime));
+				//				console.log('开始时间是' + starttime);
 				mui.ajax(url, {
-					beforeSend: function() {
-						plus.nativeUI.showWaiting('Wating...', {
-							background: '#cccccc'
-						});
-					},
+					beforeSend: function() {},
 					complete: function() {
-						setTimeout(function() {
+						plus.webview.currentWebview().parent().show("pop-in", 300, function() {
 							plus.nativeUI.closeWaiting();
-						}, 400);
+						});
 					},
 					success: function(res) {
 						var endtime = new Date().getTime();
@@ -102,7 +128,7 @@
 							img.className = 'mui-media-icon mui-pull-left';
 							img.src = res.data.topics[i].cover_image_url;
 							img.setAttribute('placeholder', 'images/60x60.gif');
-							img.setAttribute('data-lazyload', res.data.topics[i].cover_image_url);
+							//							img.setAttribute('data-lazyload', res.data.topics[i].cover_image_url);
 							var div = document.createElement('div');
 							div.className = 'mui-media-body';
 							div.innerHTML = res.data.topics[i].title + '<p class="mui-ellipsis">' + res.data.topics[i].description + '</p>';
@@ -110,7 +136,7 @@
 							li.appendChild(div);
 							table.appendChild(li);
 						}
-						//						imgLazyloadApi.refresh(true);
+						//												imgLazyloadApi.refresh(true);
 						console.log('页面绘制结束时间是' + '耗时+' + (new Date().getTime() - endtime));
 						mui('#pullrefresh').pullRefresh().endPulldownToRefresh(); //refresh completed
 					},
@@ -120,28 +146,6 @@
 					}
 				});
 			}
-			var imgLazyloadApi = null;
-			mui.plusReady(function() {
-				imgLazyloadApi = mui(document).imageLazyload({
-					autoDestroy: false,
-					placeholder: 'images/60x60.gif'
-				});
-				mui('#pullrefresh').pullRefresh().pullupLoading();
-				mui('.mui-table-view').on('tap', 'li', function() {
-					var idx = this.getAttribute('id');
-					var title = this.getAttribute('title');
-					mui.openWindow({
-						id: 'detail',
-						url: 'detail.html',
-						extras: {
-							idx: idx,
-							title: title
-						}
-					});
-				});
-			
-			});
-			
 		</script>
 	</body>
 
