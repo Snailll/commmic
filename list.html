@@ -39,18 +39,13 @@
 				}],
 				swipeBack: true
 			});
-			var sub = null;
 			mui.plusReady(function() {
 				var self = plus.webview.currentWebview();
 				console.log('list---' + self.action + self.title);
 				document.querySelector('.mui-title').innerHTML = self.title;
-				if (!sub) {
-					sub = plus.webview.getWebviewById('list_sub.html');
-				}
-				mui.fire(sub, 'setaction', {
-					action: self.action
-				});
 			});
+			
+			
 		</script>
 	</body>
 

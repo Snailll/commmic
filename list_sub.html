@@ -6,6 +6,8 @@
 		<meta http-equiv="Pragma" content="no-cache" />
 		<link rel="stylesheet" type="text/css" href="css/mui.css" />
 		<script src="js/mui.js" type="text/javascript" charset="utf-8"></script>
+		<script src="js/mui.lazyload.js"></script>
+		<script src="js/mui.lazyload.img.js"></script>
 		<style type="text/css">
 			#pullrefresh .mui-media-icon {
 				max-width: 120px;
@@ -57,69 +59,73 @@
 				},
 				swipeBack: true
 			});
-			window.addEventListener('setaction', function(event) {
-				//获得事件参数
-				action = event.detail.action;
-				alert(action);
-				//根据id向服务器请求新闻详情
-			});
-			/**
-			 * 上拉加载具体业务实现
-			 */
-			function pulldownRefresh3() {
-				setTimeout(function() {
-					console.log(++count);
-					mui('#pullrefresh').pullRefresh().endPullupToRefresh((++count > 2)); //参数为true代表没有更多数据了。
-					var table = document.body.querySelector('.mui-table-view');
-					//var cells = document.body.querySelectorAll('.mui-table-view-cell');
-					for (var i = 0; i < 20; i++) {
-						var li = document.createElement('li');
-						li.className = 'mui-table-view-cell';
-						li.innerHTML = '<a class="mui-navigate-right">Item ' + (i + 1) + '</a>';
-						table.appendChild(li);
-					}
-					//					mui('#pullrefresh').pullRefresh().endPulldownToRefresh(); //参数为true代表没有更多数据了。
-				}, 1500);
-			}
+			//			window.addEventListener('setaction', function(event) {
+			//				//获得事件参数
+			//				action = event.detail.action;
+			//				//				alert(action);
+			//				//根据id向服务器请求新闻详情
+			//			});
 			var currentPage = 0;
 
 			function pullupRefresh() {
-				setTimeout(function() {
-					var action = plus.webview.currentWebview().parent().action;
-					var url = "http://api.kuaikanmanhua.com/v1/" + action + "?limit=20&offset=" + (currentPage++ * 20);
-					console.log(url);
-					mui.ajax(url, {
-						success: function(res) {
-							console.log(res.data.topics.length);
-							mui('#pullrefresh').pullRefresh().endPullupToRefresh((res.data.topics.length < 20)); //参数为true代表没有更多数据了。
-							var table = document.querySelector(".mui-table-view");
-							//						var cells = document.querySelector(".mui-table-view-cell");
-							for (var i = 0; i < res.data.topics.length; i++) {
-								console.log(res.data.topics[i].title);
-								var li = document.createElement('li');
-								li.className = 'mui-media';
-								li.setAttribute('id', res.data.topics[i].id);
-								li.setAttribute('title', res.data.topics[i].title);
-								var img = document.createElement('img');
-								img.className = 'mui-media-icon mui-pull-left';
-								img.src = res.data.topics[i].cover_image_url;
-								var div = document.createElement('div');
-								div.className = 'mui-media-body';
-								div.innerHTML = res.data.topics[i].title + '<p class="mui-ellipsis">' + res.data.topics[i].description + '</p>';
-								li.appendChild(img);
-								li.appendChild(div);
-								table.appendChild(li);
-							}
-							mui('#pullrefresh').pullRefresh().endPulldownToRefresh(); //refresh completed
-						},
-						error: function(xhr, type, errorThrown) {
-							console.log(type);
-							alert(type + errorThrown);
+				var action = plus.webview.currentWebview().parent().action;
+				var url = "http://api.kuaikanmanhua.com/v1/" + action + "?limit=20&offset=" + (currentPage++ * 20);
+				console.log(url);
+				var starttime = new Date().getTime();
+				console.log('开始时间是' + starttime);
+				mui.ajax(url, {
+					beforeSend: function() {
+						plus.nativeUI.showWaiting('Wating...', {
+							background: '#cccccc'
+						});
+					},
+					complete: function() {
+						setTimeout(function() {
+							plus.nativeUI.closeWaiting();
+						}, 400);
+					},
+					success: function(res) {
+						var endtime = new Date().getTime();
+						console.log('请求结束时间是' + '耗时+' + (endtime - starttime));
+						console.log(res.data.topics.length);
+						mui('#pullrefresh').pullRefresh().endPullupToRefresh((res.data.topics.length < 20)); //参数为true代表没有更多数据了。
+						var table = document.querySelector(".mui-table-view");
+						//						var cells = document.querySelector(".mui-table-view-cell");
+						for (var i = 0; i < res.data.topics.length; i++) {
+							//							console.log(res.data.topics[i].title);
+							var li = document.createElement('li');
+							li.className = 'mui-media';
+							li.setAttribute('id', res.data.topics[i].id);
+							li.setAttribute('title', res.data.topics[i].title);
+							li.style.minHeight = '80px';
+							var img = document.createElement('img');
+							img.className = 'mui-media-icon mui-pull-left';
+							img.src = res.data.topics[i].cover_image_url;
+							img.setAttribute('placeholder', 'images/60x60.gif');
+							img.setAttribute('data-lazyload', res.data.topics[i].cover_image_url);
+							var div = document.createElement('div');
+							div.className = 'mui-media-body';
+							div.innerHTML = res.data.topics[i].title + '<p class="mui-ellipsis">' + res.data.topics[i].description + '</p>';
+							li.appendChild(img);
+							li.appendChild(div);
+							table.appendChild(li);
 						}
-					});
-				}, 1500);
+						//						imgLazyloadApi.refresh(true);
+						console.log('页面绘制结束时间是' + '耗时+' + (new Date().getTime() - endtime));
+						mui('#pullrefresh').pullRefresh().endPulldownToRefresh(); //refresh completed
+					},
+					error: function(xhr, type, errorThrown) {
+						console.log(type);
+						alert(type + errorThrown);
+					}
+				});
 			}
+			var imgLazyloadApi = null;
 			mui.plusReady(function() {
+				imgLazyloadApi = mui(document).imageLazyload({
+					autoDestroy: false,
+					placeholder: 'images/60x60.gif'
+				});
 				mui('#pullrefresh').pullRefresh().pullupLoading();
 				mui('.mui-table-view').on('tap', 'li', function() {
 					var idx = this.getAttribute('id');
@@ -133,51 +139,9 @@
 						}
 					});
 				});
-				//				var self = plus.webview.currentWebview();
-				//				var action = self.action;
-				//				console.log(action);
-				//				var url = "http://api.kuaikanmanhua.com/v1/" + action + "?limit=20&offset=1";
-				//				mui.ajax(url, {
-				//					success: function(res) {
-				//						console.log(res.data.topics.length);
-				//						var table = document.querySelector(".mui-table-view");
-				//						//						var cells = document.querySelector(".mui-table-view-cell");
-				//						for (var i = 0; i < res.data.topics.length; i++) {
-				//							console.log(res.data.topics[i].title);
-				//							var li = document.createElement('li');
-				//							li.setAttribute('id', res.data.topics[i].id);
-				//							li.setAttribute('title', res.data.topics[i].title);
-				//							var img = document.createElement('img');
-				//							img.className = 'mui-media-object mui-pull-left';
-				//							img.src = res.data.topics[i].cover_image_url;
-				//							var div = document.createElement('div');
-				//							div.className = 'mui-media-body';
-				//							div.innerHTML = res.data.topics[i].title + '<p class="mui-ellipsis">' + res.data.topics[i].description + '</p>';
-				//							li.className = 'mui-table-view-cell';
-				//							//							li.innerHTML = '<a class="mui-navigate-right">' + res.data.topics[i].title + '</a>'
-				//							li.appendChild(img);
-				//							li.appendChild(div);
-				//							table.appendChild(li);
-				//						}
-				//					},
-				//					error: function(xhr, type, errorThrown) {
-				//						console.log(type);
-				//						alert(type);
-				//					}
-				//				});
-				//				mui('.mui-table-view').on('tap', '.mui-table-view-cell', function() {
-				//					var idx = this.getAttribute('id');
-				//					var title = this.getAttribute('title');
-				//					mui.openWindow({
-				//						id: 'detail',
-				//						url: 'detail.html',
-				//						extras: {
-				//							idx: idx,
-				//							title: title
-				//						}
-				//					});
-				//				});
+			
 			});
+			
 		</script>
 	</body>
 
